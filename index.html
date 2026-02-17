@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeShare - Share Your Code</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Prism.js for Syntax Highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet"/>
+</head>
+<body>
+
+    <!-- ===== HEADER ===== -->
+    <header>
+        <div class="header-content">
+            <div class="logo">&lt;/&gt; CodeShare</div>
+            <p class="tagline">Read it. Copy it. Use it. But don't edit it here!</p>
+        </div>
+        <button id="authBtn" class="btn-auth">🔐 Access Code</button>
+    </header>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main>
+
+        <!-- ===== ADD NEW SNIPPET SECTION (for you, the owner) ===== -->
+        <section class="add-section" id="addSection">
+            <h2>➕ Add New Code Snippet</h2>
+            <input type="text" id="snippetTitle" placeholder="Snippet Title (e.g., Responsive Navbar)">
+            
+            <select id="snippetLanguage">
+                <option value="html">HTML</option>
+                <option value="css">CSS</option>
+                <option value="javascript">JavaScript</option>
+                <option value="python">Python</option>
+                <option value="java">Java</option>
+                <option value="cpp">C++</option>
+                <option value="csharp">C#</option>
+                <option value="php">PHP</option>
+                <option value="sql">SQL</option>
+                <option value="bash">Bash</option>
+                <option value="json">JSON</option>
+            </select>
+
+            <textarea id="snippetCode" placeholder="Paste your code here..."></textarea>
+            <button id="addBtn" class="btn-add">Add Snippet</button>
+        </section>
+
+        <!-- ===== SEARCH & FILTER ===== -->
+        <section class="filter-section">
+            <input type="text" id="searchInput" placeholder="🔍 Search snippets...">
+            <select id="filterLanguage">
+                <option value="all">All Languages</option>
+                <option value="html">HTML</option>
+                <option value="css">CSS</option>
+                <option value="javascript">JavaScript</option>
+                <option value="python">Python</option>
+                <option value="java">Java</option>
+                <option value="cpp">C++</option>
+                <option value="csharp">C#</option>
+                <option value="php">PHP</option>
+                <option value="sql">SQL</option>
+                <option value="bash">Bash</option>
+                <option value="json">JSON</option>
+            </select>
+        </section>
+
+        <!-- ===== CODE SNIPPETS CONTAINER ===== -->
+        <section class="snippets-container" id="snippetsContainer">
+            <!-- Snippets will be rendered here -->
+        </section>
+
+    </main>
+
+    <!-- ===== AUTHENTICATION MODAL ===== -->
+    <div class="modal" id="authModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🔐 Access Required</h2>
+                <button class="close-btn" id="closeModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Enter the 8-digit code to add/edit code snippets:</p>
+                <input type="password" id="authCode" placeholder="Enter 8-digit code" maxlength="8">
+                <div class="error-msg" id="errorMsg"></div>
+            </div>
+            <div class="modal-footer">
+                <button id="submitCode" class="btn-primary">Unlock</button>
+                <button id="cancelAuth" class="btn-secondary">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== TOAST NOTIFICATION ===== -->
+    <div class="toast" id="toast">✅ Copied to clipboard!</div>
+
+    <!-- ===== FOOTER ===== -->
+    <footer>
+        <p>Made with ❤️ by <strong>Prince soni</strong> | © 2025 CodeShare</p>
+    </footer>
+
+    <!-- Prism.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-cpp.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-csharp.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-php.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
