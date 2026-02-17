@@ -72,14 +72,25 @@ print(f"Sorted: {sorted_numbers}")`,
 // ===== AUTHORIZATION SETTINGS =====
 const CORRECT_CODE = '12345678'; // Change this to your 8-digit code
 
-// ===== INITIALIZE =====
-let snippets = JSON.parse(localStorage.getItem('codeSnippets')) || defaultSnippets;
-let isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
+// ===== FIREBASE INITIALIZATION =====
+const firebaseConfig = {
+  apiKey: "AIzaSyCtNJqxLQXatyQpO3D6wCTzvZjEZMVv5N4",
+  authDomain: "code-share-4022e.firebaseapp.com",
+  projectId: "code-share-4022e",
+  storageBucket: "code-share-4022e.firebasestorage.app",
+  messagingSenderId: "585527758604",
+  appId: "1:585527758604:web:8ecfed69e3219d28f74329",
+  databaseURL: "https://code-share-4022e.firebaseio.com"
+};
 
-// Save defaults if first time
-if (!localStorage.getItem('codeSnippets')) {
-    localStorage.setItem('codeSnippets', JSON.stringify(snippets));
-}
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const database = firebase.database();
+const snippetsRef = database.ref('snippets');
+
+// ===== INITIALIZE =====
+let snippets = [];
+let isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
 
 // ===== DOM ELEMENTS =====
 const snippetsContainer = document.getElementById('snippetsContainer');
@@ -288,9 +299,12 @@ function deleteSnippet(id) {
     renderSnippets(filterLanguage.value, searchInput.value);
 }
 
-// ===== SAVE TO LOCALSTORAGE =====
+// ===== SAVE TO FIREBASE =====
 function saveSnippets() {
-    localStorage.setItem('codeSnippets', JSON.stringify(snippets));
+    snippetsRef.set(snippets).catch(error => {
+        console.error('Error saving to Firebase:', error);
+        showToastMessage('❌ Failed to save to database!');
+    });
 }
 
 // ===== SEARCH & FILTER EVENTS =====
@@ -407,6 +421,20 @@ authModal.addEventListener('click', (e) => {
     }
 });
 
+// ===== FIREBASE REAL-TIME LISTENING =====
+snippetsRef.on('value', (snapshot) => {
+    const data = snapshot.val();
+    if (data) {
+        snippets = Array.isArray(data) ? data : Object.values(data);
+    } else {
+        snippets = defaultSnippets;
+        saveSnippets();
+    }
+    renderSnippets(filterLanguage.value, searchInput.value);
+}, (error) => {
+    console.error('Firebase error:', error);
+    showToastMessage('⚠️ Could not connect to database!');
+});
+
 // ===== INITIAL RENDER =====
 updateAuthUI();
-renderSnippets(filterLanguage.value, searchInput.value);
