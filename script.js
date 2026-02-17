@@ -79,14 +79,13 @@ const firebaseConfig = {
   projectId: "code-share-4022e",
   storageBucket: "code-share-4022e.firebasestorage.app",
   messagingSenderId: "585527758604",
-  appId: "1:585527758604:web:8ecfed69e3219d28f74329",
-  databaseURL: "https://code-share-4022e.firebaseio.com"
+  appId: "1:585527758604:web:8ecfed69e3219d28f74329"
 };
 
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
-const database = firebase.database();
-const snippetsRef = database.ref('snippets');
+const db = firebase.firestore();
+const snippetsCollection = db.collection('snippets');
 
 // ===== INITIALIZE =====
 let snippets = [];
@@ -269,21 +268,23 @@ addBtn.addEventListener('click', () => {
     }
 
     const newSnippet = {
-        id: Date.now(),
         title,
         language,
         code,
-        date: new Date().toISOString().split('T')[0]
+        date: new Date().toISOString().split('T')[0],
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
     };
 
-    snippets.unshift(newSnippet);
-    saveSnippets();
-    renderSnippets(filterLanguage.value, searchInput.value);
-    showToastMessage('✅ Code snippet added successfully!');
-
-    // Clear inputs
-    snippetTitle.value = '';
-    snippetCode.value = '';
+    snippetsCollection.add(newSnippet)
+        .then(() => {
+            showToastMessage('✅ Code snippet added successfully!');
+            snippetTitle.value = '';
+            snippetCode.value = '';
+        })
+        .catch(error => {
+            console.error('Error adding snippet:', error);
+            showToastMessage('❌ Failed to add snippet!');
+        });
 });
 
 // ===== DELETE SNIPPET =====
@@ -294,17 +295,21 @@ function deleteSnippet(id) {
         return;
     }
     if (!confirm('Are you sure you want to delete this snippet?')) return;
-    snippets = snippets.filter(s => s.id !== id);
-    saveSnippets();
-    renderSnippets(filterLanguage.value, searchInput.value);
+    
+    snippetsCollection.doc(id).delete()
+        .then(() => {
+            showToastMessage('✅ Snippet deleted!');
+        })
+        .catch(error => {
+            console.error('Error deleting snippet:', error);
+            showToastMessage('❌ Failed to delete snippet!');
+        });
 }
 
 // ===== SAVE TO FIREBASE =====
 function saveSnippets() {
-    snippetsRef.set(snippets).catch(error => {
-        console.error('Error saving to Firebase:', error);
-        showToastMessage('❌ Failed to save to database!');
-    });
+    // Firestore saves happen in add and delete functions
+    // This is kept for compatibility
 }
 
 // ===== SEARCH & FILTER EVENTS =====
@@ -421,20 +426,37 @@ authModal.addEventListener('click', (e) => {
     }
 });
 
-// ===== FIREBASE REAL-TIME LISTENING =====
-snippetsRef.on('value', (snapshot) => {
-    const data = snapshot.val();
-    if (data) {
-        snippets = Array.isArray(data) ? data : Object.values(data);
-    } else {
-        snippets = defaultSnippets;
-        saveSnippets();
+// ===== FIRESTORE REAL-TIME LISTENING =====
+snippetsCollection.orderBy('timestamp', 'desc').onSnapshot(
+    (snapshot) => {
+        snippets = [];
+        snapshot.forEach((doc) => {
+            snippets.push({
+                id: doc.id,
+                ...doc.data()
+            });
+        });
+        
+        if (snippets.length === 0) {
+            // Add default snippets if database is empty
+            defaultSnippets.forEach(snippet => {
+                snippetsCollection.add({
+                    title: snippet.title,
+                    language: snippet.language,
+                    code: snippet.code,
+                    date: snippet.date,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            });
+        }
+        
+        renderSnippets(filterLanguage.value, searchInput.value);
+    },
+    (error) => {
+        console.error('Firebase error:', error);
+        showToastMessage('⚠️ Could not connect to database!');
     }
-    renderSnippets(filterLanguage.value, searchInput.value);
-}, (error) => {
-    console.error('Firebase error:', error);
-    showToastMessage('⚠️ Could not connect to database!');
-});
+);
 
 // ===== INITIAL RENDER =====
 updateAuthUI();
